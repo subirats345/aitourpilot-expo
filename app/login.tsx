@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, View, SafeAreaView } from "react-native";
+import { StyleSheet, View, SafeAreaView, Pressable } from "react-native";
 import LoginButtonMobile from "../components/login-button-mobile";
 import * as NavigationBar from "expo-navigation-bar";
 import Animated, {
   Easing,
   useSharedValue,
+  withSpring,
   withTiming,
 } from "react-native-reanimated";
 import useScreenSize from "../hooks/screen-size";
 import LoginAnimatedTopSheet from "../components/login-animated-top-sheet";
+import { Entypo } from "@expo/vector-icons";
+import "react-native-gesture-handler";
 
 const NAVIGATION_BAR_COLOR = "#e7e1e7";
 
@@ -48,14 +51,14 @@ function ShortSheetButtons({ callback }): JSX.Element {
   const { isLarge, isXLarge, isBiggerThanLarge } = useScreenSize();
 
   return (
-    <>
-      <LoginButtonMobile
-        title="Continue with Google"
-        icon="google"
-        type={isBiggerThanLarge ? "Light" : "Dark"}
+    <View style={{ width: "auto", flexDirection: "row", gap: 6 }}>
+      <Pressable
         onPress={() => callback("Google")}
-      />
-    </>
+        onPressIn={() => callback("Google")}
+      >
+        <Entypo name="chevron-small-up" size={50} color="black" />
+      </Pressable>
+    </View>
   );
 }
 
@@ -63,7 +66,8 @@ export default function LoginScreen() {
   const { isLarge, isXLarge, isBiggerThanLarge } = useScreenSize();
 
   const [sheetOpen, setSheetOpen] = useState(true);
-  const flexValue = useSharedValue(isLarge ? 5 : isXLarge ? 4 : 3);
+
+  const flexAnim = useSharedValue(isLarge ? 5 : isXLarge ? 4 : 3);
 
   useEffect(() => {
     const setNavigationBarColor = async () => {
@@ -73,24 +77,19 @@ export default function LoginScreen() {
   }, []);
 
   const handleBottomSheet = () => {
-    console.log("handleBottomSheet");
-    setSheetOpen((prev) => !prev);
+    if (!isBiggerThanLarge) {
+      console.log("handleBottomSheet");
+      setSheetOpen((prev) => !prev);
+    }
   };
 
   useEffect(() => {
-    console.log("useEffect", sheetOpen);
-    // if (sheetOpen) {
-    //   flexValue.value = withTiming(isLarge ? 5 : isXLarge ? 4 : 3, {
-    //     duration: 3500,
-    //     easing: Easing.inOut(Easing.ease),
-    //   });
-    // } else {
-    //   flexValue.value = withTiming(0.5, {
-    //     duration: 3500,
-    //     easing: Easing.inOut(Easing.ease),
-    //   });
-    // }
-  }, [sheetOpen]);
+    if (sheetOpen) {
+      flexAnim.value = withSpring(isLarge ? 5 : isXLarge ? 4 : 3);
+    } else {
+      flexAnim.value = withSpring(0.6);
+    }
+  }, [sheetOpen, isBiggerThanLarge]);
 
   return (
     <SafeAreaView
@@ -106,15 +105,19 @@ export default function LoginScreen() {
         style={[
           styles.bottomView,
           {
-            backgroundColor: NAVIGATION_BAR_COLOR,
-            flex: !sheetOpen ? 0.5 : isLarge ? 5 : isXLarge ? 4 : 3,
+            backgroundColor: isBiggerThanLarge
+              ? "#1c1b20"
+              : NAVIGATION_BAR_COLOR,
+            flex: flexAnim,
           },
         ]}
       >
-        <View
+        <Pressable
+          onPressIn={() => !sheetOpen && handleBottomSheet()}
           style={[
             styles.bottomSheet,
             {
+              paddingTop: sheetOpen ? 25 : 10,
               borderTopLeftRadius: isBiggerThanLarge ? 0 : 30,
               borderTopRightRadius: isBiggerThanLarge ? 0 : 30,
               justifyContent: isBiggerThanLarge ? "flex-end" : "space-between",
@@ -131,7 +134,7 @@ export default function LoginScreen() {
           ) : (
             <ShortSheetButtons callback={handleBottomSheet} />
           )}
-        </View>
+        </Pressable>
       </Animated.View>
     </SafeAreaView>
   );
@@ -152,7 +155,6 @@ const styles = StyleSheet.create({
     bottom: 25,
     height: "100%",
     width: "100%",
-    paddingTop: 25,
     paddingHorizontal: 20,
     alignItems: "center",
   },

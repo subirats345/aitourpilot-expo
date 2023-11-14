@@ -15,9 +15,10 @@ export default function LoginButtonMobile({
   icon,
   onPress,
   type = "Dark", // Default button type
+  width = "100%",
 }: LoginButtonMobileProps) {
   // Assign styles based on button type
-  const buttonStyles = [styles.button, styles[type]];
+  const buttonStyles = [styles.button, styles[type], { width: width }];
   const textStyles = [styles.buttonText, styles[`${type}Text`]];
 
   return (
@@ -41,7 +42,6 @@ const styles = StyleSheet.create({
   button: {
     borderRadius: 30,
     padding: 10,
-    width: "100%",
     alignItems: "center",
     justifyContent: "center",
   },

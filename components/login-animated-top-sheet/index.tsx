@@ -13,8 +13,8 @@ import { Platform } from "react-native";
 const isMobile = Platform.OS === "ios" || Platform.OS === "android";
 
 const COLOR_TRANSITION_DURATION = 1500;
-const WRITE_MOBILE_SPEED = 5;
-const DELETE_MOBILE_SPEED = 1;
+const WRITE_MOBILE_SPEED = 20;
+const DELETE_MOBILE_SPEED = 5;
 const WRITE_DESKTOP_SPEED = 100;
 const DELETE_DESKTOP_SPEED = 25;
 
